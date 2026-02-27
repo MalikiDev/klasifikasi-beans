@@ -25,16 +25,16 @@
     <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
         <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ $coffeeBean->name }}</h1>
-                @if($coffeeBean->created_at)
-                    <p class="text-sm text-gray-500">Ditambahkan: {{ $coffeeBean->created_at->format('d M Y, H:i') }}</p>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ $coffee->name }}</h1>
+                @if($coffee->created_at)
+                    <p class="text-sm text-gray-500">Ditambahkan: {{ $coffee->created_at->format('d M Y, H:i') }}</p>
                 @endif
             </div>
-            @if($coffeeBean->final_classification)
+            @if($coffee->final_classification)
                 <div class="text-center">
                     <p class="text-sm text-gray-600 mb-1">Klasifikasi Final</p>
-                    <span class="inline-block {{ \App\Helpers\RoastingHelper::getBadgeColor($coffeeBean->final_classification) }} px-4 py-2 rounded-full font-bold text-lg">
-                        {{ \App\Helpers\RoastingHelper::getIcon($coffeeBean->final_classification) }} {{ $coffeeBean->final_classification }}
+                    <span class="inline-block {{ \App\Helpers\RoastingHelper::getBadgeColor($coffee->final_classification) }} px-4 py-2 rounded-full font-bold text-lg">
+                        {{ \App\Helpers\RoastingHelper::getIcon($coffee->final_classification) }} {{ $coffee->final_classification }}
                     </span>
                 </div>
             @endif
@@ -45,8 +45,8 @@
         <!-- Image Column -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-lg shadow-lg overflow-hidden sticky top-4">
-                @if($coffeeBean->image_path)
-                    <img src="{{ asset('storage/' . $coffeeBean->image_path) }}" alt="{{ $coffeeBean->name }}" class="w-full h-auto">
+                @if($coffee->image_path)
+                    <img src="{{ asset('storage/' . $coffee->image_path) }}" alt="{{ $coffee->name }}" class="w-full h-auto">
                 @else
                     <div class="w-full h-64 bg-gray-200 flex items-center justify-center">
                         <span class="text-gray-400">No Image</span>
@@ -56,34 +56,34 @@
                 <div class="p-4">
                     <h3 class="font-semibold text-gray-800 mb-3">Informasi Tambahan</h3>
                     
-                    @if($coffeeBean->description)
+                    @if($coffee->description)
                         <div class="mb-3">
-                            <p class="text-sm text-gray-600">{{ $coffeeBean->description }}</p>
+                            <p class="text-sm text-gray-600">{{ $coffee->description }}</p>
                         </div>
                     @endif
 
-                    @if($coffeeBean->variety || $coffeeBean->origin)
+                    @if($coffee->variety || $coffee->origin)
                         <div class="space-y-2 text-sm">
-                            @if($coffeeBean->variety)
+                            @if($coffee->variety)
                                 <div>
                                     <span class="font-semibold text-gray-700">Varietas:</span>
-                                    <span class="text-gray-600">{{ $coffeeBean->variety }}</span>
+                                    <span class="text-gray-600">{{ $coffee->variety }}</span>
                                 </div>
                             @endif
-                            @if($coffeeBean->origin)
+                            @if($coffee->origin)
                                 <div>
                                     <span class="font-semibold text-gray-700">Asal:</span>
-                                    <span class="text-gray-600">{{ $coffeeBean->origin }}</span>
+                                    <span class="text-gray-600">{{ $coffee->origin }}</span>
                                 </div>
                             @endif
                         </div>
                     @endif
 
                     <div class="mt-4 pt-4 border-t flex gap-2">
-                        <a href="{{ route('coffee.edit', $coffeeBean) }}" class="flex-1 bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-3 rounded text-center text-sm">
+                        <a href="{{ route('coffee.edit', $coffee) }}" class="flex-1 bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-3 rounded text-center text-sm">
                             Edit
                         </a>
-                        <form action="{{ route('coffee.destroy', $coffeeBean) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')" class="flex-1">
+                        <form action="{{ route('coffee.destroy', $coffee) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini?')" class="flex-1">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded text-sm">
@@ -99,29 +99,29 @@
         <div class="lg:col-span-2 space-y-6">
             
             <!-- Model Agreement Status -->
-            @if($coffeeBean->classification_small && $coffeeBean->classification_large)
-                <div class="bg-gradient-to-r {{ $coffeeBean->models_agree ? 'from-green-50 to-emerald-50 border-green-500' : 'from-yellow-50 to-orange-50 border-yellow-500' }} border-l-4 p-6 rounded-r-lg">
+            @if($coffee->classification_small && $coffee->classification_large)
+                <div class="bg-gradient-to-r {{ $coffee->models_agree ? 'from-green-50 to-emerald-50 border-green-500' : 'from-yellow-50 to-orange-50 border-yellow-500' }} border-l-4 p-6 rounded-r-lg">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold {{ $coffeeBean->models_agree ? 'text-green-800' : 'text-yellow-800' }}">
-                            {{ $coffeeBean->models_agree ? '✓ Kedua Model Setuju' : '⚠ Model Berbeda Pendapat' }}
+                        <h3 class="text-xl font-bold {{ $coffee->models_agree ? 'text-green-800' : 'text-yellow-800' }}">
+                            {{ $coffee->models_agree ? '✓ Kedua Model Setuju' : '⚠ Model Berbeda Pendapat' }}
                         </h3>
-                        @if($coffeeBean->confidence_difference)
-                            <span class="text-sm {{ $coffeeBean->models_agree ? 'text-green-700' : 'text-yellow-700' }}">
-                                Selisih Confidence: {{ number_format($coffeeBean->confidence_difference, 2) }}%
+                        @if($coffee->confidence_difference)
+                            <span class="text-sm {{ $coffee->models_agree ? 'text-green-700' : 'text-yellow-700' }}">
+                                Selisih Confidence: {{ number_format($coffee->confidence_difference, 2) }}%
                             </span>
                         @endif
                     </div>
                     
-                    @if($coffeeBean->comparison_analysis && isset($coffeeBean->comparison_analysis['recommendation']))
-                        <p class="text-sm {{ $coffeeBean->models_agree ? 'text-green-700' : 'text-yellow-700' }}">
-                            <strong>Rekomendasi:</strong> {{ $coffeeBean->comparison_analysis['recommendation'] }}
+                    @if($coffee->comparison_analysis && isset($coffee->comparison_analysis['recommendation']))
+                        <p class="text-sm {{ $coffee->models_agree ? 'text-green-700' : 'text-yellow-700' }}">
+                            <strong>Rekomendasi:</strong> {{ $coffee->comparison_analysis['recommendation'] }}
                         </p>
                     @endif
                 </div>
             @endif
 
             <!-- MobileNetV3 Small Results -->
-            @if($coffeeBean->classification_small)
+            @if($coffee->classification_small)
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-xl font-bold text-gray-800 flex items-center">
@@ -131,9 +131,9 @@
                             </svg>
                             MobileNetV3-Small
                         </h3>
-                        @if($coffeeBean->processing_time_small)
+                        @if($coffee->processing_time_small)
                             <span class="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded">
-                                ⚡ {{ $coffeeBean->processing_time_small }}ms
+                                ⚡ {{ $coffee->processing_time_small }}ms
                             </span>
                         @endif
                     </div>
@@ -141,33 +141,33 @@
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
                             <span class="text-gray-700 font-medium">Klasifikasi:</span>
-                            <span class="inline-block {{ \App\Helpers\RoastingHelper::getBadgeColor($coffeeBean->classification_small) }} px-4 py-2 rounded-full font-semibold">
-                                {{ \App\Helpers\RoastingHelper::getIcon($coffeeBean->classification_small) }} {{ $coffeeBean->classification_small }}
+                            <span class="inline-block {{ \App\Helpers\RoastingHelper::getBadgeColor($coffee->classification_small) }} px-4 py-2 rounded-full font-semibold">
+                                {{ \App\Helpers\RoastingHelper::getIcon($coffee->classification_small) }} {{ $coffee->classification_small }}
                             </span>
                         </div>
 
-                        @if($coffeeBean->confidence_small)
+                        @if($coffee->confidence_small)
                             @php
-                                $confidenceInfo = \App\Helpers\RoastingHelper::getConfidenceLevel($coffeeBean->confidence_small);
+                                $confidenceInfo = \App\Helpers\RoastingHelper::getConfidenceLevel($coffee->confidence_small);
                             @endphp
                             <div>
                                 <div class="flex items-center justify-between mb-2">
                                     <span class="text-gray-700 font-medium">Confidence:</span>
                                     <span class="font-bold {{ $confidenceInfo['color'] }}">
-                                        {{ number_format($coffeeBean->confidence_small, 2) }}% ({{ $confidenceInfo['level'] }})
+                                        {{ number_format($coffee->confidence_small, 2) }}% ({{ $confidenceInfo['level'] }})
                                     </span>
                                 </div>
                                 <div class="w-full bg-gray-200 rounded-full h-3">
-                                    <div class="bg-blue-600 h-3 rounded-full transition-all" style="width: {{ $coffeeBean->confidence_small }}%"></div>
+                                    <div class="bg-blue-600 h-3 rounded-full transition-all" style="width: {{ $coffee->confidence_small }}%"></div>
                                 </div>
                             </div>
                         @endif
 
-                        @if($coffeeBean->predictions_small)
+                        @if($coffee->predictions_small)
                             <div>
                                 <p class="text-sm font-semibold text-gray-700 mb-2">Detail Prediksi:</p>
                                 <div class="space-y-2">
-                                    @foreach($coffeeBean->predictions_small as $pred)
+                                    @foreach($coffee->predictions_small as $pred)
                                         <div class="flex items-center justify-between text-sm">
                                             <span class="text-gray-600">{{ $pred['class'] }}</span>
                                             <div class="flex items-center">
@@ -186,7 +186,7 @@
             @endif
 
             <!-- MobileNetV3 Large Results -->
-            @if($coffeeBean->classification_large)
+            @if($coffee->classification_large)
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-xl font-bold text-gray-800 flex items-center">
@@ -195,9 +195,9 @@
                             </svg>
                             MobileNetV3-Large
                         </h3>
-                        @if($coffeeBean->processing_time_large)
+                        @if($coffee->processing_time_large)
                             <span class="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded">
-                                ⚡ {{ $coffeeBean->processing_time_large }}ms
+                                ⚡ {{ $coffee->processing_time_large }}ms
                             </span>
                         @endif
                     </div>
@@ -205,33 +205,33 @@
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
                             <span class="text-gray-700 font-medium">Klasifikasi:</span>
-                            <span class="inline-block {{ \App\Helpers\RoastingHelper::getBadgeColor($coffeeBean->classification_large) }} px-4 py-2 rounded-full font-semibold">
-                                {{ \App\Helpers\RoastingHelper::getIcon($coffeeBean->classification_large) }} {{ $coffeeBean->classification_large }}
+                            <span class="inline-block {{ \App\Helpers\RoastingHelper::getBadgeColor($coffee->classification_large) }} px-4 py-2 rounded-full font-semibold">
+                                {{ \App\Helpers\RoastingHelper::getIcon($coffee->classification_large) }} {{ $coffee->classification_large }}
                             </span>
                         </div>
 
-                        @if($coffeeBean->confidence_large)
+                        @if($coffee->confidence_large)
                             @php
-                                $confidenceInfo = \App\Helpers\RoastingHelper::getConfidenceLevel($coffeeBean->confidence_large);
+                                $confidenceInfo = \App\Helpers\RoastingHelper::getConfidenceLevel($coffee->confidence_large);
                             @endphp
                             <div>
                                 <div class="flex items-center justify-between mb-2">
                                     <span class="text-gray-700 font-medium">Confidence:</span>
                                     <span class="font-bold {{ $confidenceInfo['color'] }}">
-                                        {{ number_format($coffeeBean->confidence_large, 2) }}% ({{ $confidenceInfo['level'] }})
+                                        {{ number_format($coffee->confidence_large, 2) }}% ({{ $confidenceInfo['level'] }})
                                     </span>
                                 </div>
                                 <div class="w-full bg-gray-200 rounded-full h-3">
-                                    <div class="bg-purple-600 h-3 rounded-full transition-all" style="width: {{ $coffeeBean->confidence_large }}%"></div>
+                                    <div class="bg-purple-600 h-3 rounded-full transition-all" style="width: {{ $coffee->confidence_large }}%"></div>
                                 </div>
                             </div>
                         @endif
 
-                        @if($coffeeBean->predictions_large)
+                        @if($coffee->predictions_large)
                             <div>
                                 <p class="text-sm font-semibold text-gray-700 mb-2">Detail Prediksi:</p>
                                 <div class="space-y-2">
-                                    @foreach($coffeeBean->predictions_large as $pred)
+                                    @foreach($coffee->predictions_large as $pred)
                                         <div class="flex items-center justify-between text-sm">
                                             <span class="text-gray-600">{{ $pred['class'] }}</span>
                                             <div class="flex items-center">
@@ -250,7 +250,7 @@
             @endif
 
             <!-- Comparison Analysis -->
-            @if($coffeeBean->comparison_analysis)
+            @if($coffee->comparison_analysis)
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
                         <svg class="w-6 h-6 mr-2 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
@@ -260,26 +260,26 @@
                     </h3>
 
                     <div class="grid grid-cols-2 gap-4">
-                        @if(isset($coffeeBean->comparison_analysis['faster_model']))
+                        @if(isset($coffee->comparison_analysis['faster_model']))
                             <div class="bg-blue-50 p-4 rounded-lg">
                                 <p class="text-sm text-gray-600 mb-1">Model Tercepat</p>
                                 <p class="text-lg font-bold text-blue-700">
-                                    {{ $coffeeBean->comparison_analysis['faster_model'] === 'small' ? 'Small' : 'Large' }}
+                                    {{ $coffee->comparison_analysis['faster_model'] === 'small' ? 'Small' : 'Large' }}
                                 </p>
-                                @if(isset($coffeeBean->comparison_analysis['speed_improvement_percent']))
-                                    <p class="text-xs text-gray-600">{{ number_format($coffeeBean->comparison_analysis['speed_improvement_percent'], 1) }}% lebih cepat</p>
+                                @if(isset($coffee->comparison_analysis['speed_improvement_percent']))
+                                    <p class="text-xs text-gray-600">{{ number_format($coffee->comparison_analysis['speed_improvement_percent'], 1) }}% lebih cepat</p>
                                 @endif
                             </div>
                         @endif
 
-                        @if(isset($coffeeBean->comparison_analysis['more_confident_model']))
+                        @if(isset($coffee->comparison_analysis['more_confident_model']))
                             <div class="bg-purple-50 p-4 rounded-lg">
                                 <p class="text-sm text-gray-600 mb-1">Model Paling Yakin</p>
                                 <p class="text-lg font-bold text-purple-700">
-                                    {{ $coffeeBean->comparison_analysis['more_confident_model'] === 'small' ? 'Small' : 'Large' }}
+                                    {{ $coffee->comparison_analysis['more_confident_model'] === 'small' ? 'Small' : 'Large' }}
                                 </p>
-                                @if(isset($coffeeBean->comparison_analysis['confidence_improvement']))
-                                    <p class="text-xs text-gray-600">+{{ number_format($coffeeBean->comparison_analysis['confidence_improvement'], 2) }}% confidence</p>
+                                @if(isset($coffee->comparison_analysis['confidence_improvement']))
+                                    <p class="text-xs text-gray-600">+{{ number_format($coffee->comparison_analysis['confidence_improvement'], 2) }}% confidence</p>
                                 @endif
                             </div>
                         @endif
@@ -289,7 +289,7 @@
 
             <!-- Reclassify Button -->
             <div class="bg-gray-50 rounded-lg p-4 text-center">
-                <form action="{{ route('coffee.reclassify', $coffeeBean) }}" method="POST" class="inline">
+                <form action="{{ route('coffee.reclassify', $coffee) }}" method="POST" class="inline">
                     @csrf
                     <button type="submit" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg inline-flex items-center">
                         <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">

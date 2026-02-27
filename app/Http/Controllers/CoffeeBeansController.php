@@ -53,7 +53,7 @@ class CoffeeBeansController extends Controller
             // Hapus gambar jika klasifikasi gagal
             Storage::disk('public')->delete($imagePath);
             
-            return back()
+            return redirect()->route('coffee.create')
                 ->withInput()
                 ->with('error', 'Gagal melakukan klasifikasi: ' . $classification['error']);
         }
@@ -76,7 +76,7 @@ class CoffeeBeansController extends Controller
         // Calculate confidence difference
         $confidenceDiff = abs($data['small']['confidence'] - $data['large']['confidence']);
 
-        $coffeeBean = CoffeeBeans::create([
+        $coffee = CoffeeBeans::create([
             'name' => $autoName,
             'variety' => null,
             'origin' => null,
@@ -102,30 +102,30 @@ class CoffeeBeansController extends Controller
             'comparison_analysis' => $data['comparison'] ?? null
         ]);
 
-        return redirect()->route('coffee.show', $coffeeBean)
+        return redirect()->route('coffee.show', $coffee->id)
             ->with('success', 'Data biji kopi berhasil ditambahkan dan diklasifikasi dengan 2 model!');
     }
 
     /**
      * Display the specified coffee bean
      */
-    public function show(CoffeeBeans $coffeeBean)
+    public function show(CoffeeBeans $coffee)
     {
-        return view('coffee.show', compact('coffeeBean'));
+        return view('coffee.show', compact('coffee'));
     }
 
     /**
      * Show the form for editing the specified coffee bean
      */
-    public function edit(CoffeeBeans $coffeeBean)
+    public function edit(CoffeeBeans $coffee)
     {
-        return view('coffee.edit', compact('coffeeBean'));
+        return view('coffee.edit', compact('coffee'));
     }
 
     /**
      * Update the specified coffee bean
      */
-    public function update(Request $request, CoffeeBeans $coffeeBean)
+    public function update(Request $request, CoffeeBeans $coffee)
     {
         $validated = $request->validate([
             'name' => 'nullable|string|max:255',
@@ -136,17 +136,17 @@ class CoffeeBeansController extends Controller
         ]);
 
         $data = [
-            'name' => $validated['name'] ?? $coffeeBean->name,
+            'name' => $validated['name'] ?? $coffee->name,
             'variety' => $validated['variety'] ?? null,
             'origin' => $validated['origin'] ?? null,
-            'description' => $validated['description'] ?? $coffeeBean->description,
+            'description' => $validated['description'] ?? $coffee->description,
         ];
 
         // Jika ada image baru
         if ($request->hasFile('image')) {
             // Hapus image lama
-            if ($coffeeBean->image_path) {
-                Storage::disk('public')->delete($coffeeBean->image_path);
+            if ($coffee->image_path) {
+                Storage::disk('public')->delete($coffee->image_path);
             }
 
             // Upload image baru
@@ -160,7 +160,7 @@ class CoffeeBeansController extends Controller
                 $roastLevel = $classification['data']['class'] ?? 'Unknown';
                 
                 // Update nama jika masih menggunakan nama auto-generated
-                if (strpos($coffeeBean->name, 'Biji Kopi') === 0) {
+                if (strpos($coffee->name, 'Biji Kopi') === 0) {
                     $timestamp = now()->format('YmdHis');
                     $data['name'] = "Biji Kopi {$roastLevel} - {$timestamp}";
                 }
@@ -177,23 +177,23 @@ class CoffeeBeansController extends Controller
             }
         }
 
-        $coffeeBean->update($data);
+        $coffee->update($data);
 
-        return redirect()->route('coffee.show', $coffeeBean)
+        return redirect()->route('coffee.show', $coffee)
             ->with('success', 'Data biji kopi berhasil diupdate!');
     }
 
     /**
      * Remove the specified coffee bean
      */
-    public function destroy(CoffeeBeans $coffeeBean)
+    public function destroy(CoffeeBeans $coffee)
     {
         // Hapus image
-        if ($coffeeBean->image_path) {
-            Storage::disk('public')->delete($coffeeBean->image_path);
+        if ($coffee->image_path) {
+            Storage::disk('public')->delete($coffee->image_path);
         }
 
-        $coffeeBean->delete();
+        $coffee->delete();
 
         return redirect()->route('coffee.index')
             ->with('success', 'Data biji kopi berhasil dihapus!');
@@ -202,13 +202,14 @@ class CoffeeBeansController extends Controller
     /**
      * Reclassify image dengan Flask API (dual model)
      */
-    public function reclassify(CoffeeBeans $coffeeBean)
+    public function reclassify(CoffeeBeans $coffee)
     {
-        if (!$coffeeBean->image_path) {
-            return back()->with('error', 'Tidak ada gambar untuk diklasifikasi!');
+        if (!$coffee->image_path) {
+            return redirect()->route('coffee.show', $coffee)
+                ->with('error', 'Tidak ada gambar untuk diklasifikasi!');
         }
 
-        $fullPath = storage_path('app/public/' . $coffeeBean->image_path);
+        $fullPath = storage_path('app/public/' . $coffee->image_path);
         $classification = $this->flaskApi->classifyImage($fullPath);
 
         if ($classification['success']) {
@@ -221,7 +222,7 @@ class CoffeeBeansController extends Controller
             
             $confidenceDiff = abs($data['small']['confidence'] - $data['large']['confidence']);
 
-            $coffeeBean->update([
+            $coffee->update([
                 'classification_small' => $data['small']['class'],
                 'confidence_small' => $data['small']['confidence'],
                 'predictions_small' => $data['small']['predictions'],
@@ -238,9 +239,11 @@ class CoffeeBeansController extends Controller
                 'comparison_analysis' => $data['comparison'] ?? null
             ]);
 
-            return back()->with('success', 'Klasifikasi berhasil diperbarui dengan kedua model!');
+            return redirect()->route('coffee.show', $coffee)
+                ->with('success', 'Klasifikasi berhasil diperbarui dengan kedua model!');
         }
 
-        return back()->with('error', 'Gagal melakukan klasifikasi: ' . $classification['error']);
+        return redirect()->route('coffee.show', $coffee)
+            ->with('error', 'Gagal melakukan klasifikasi: ' . $classification['error']);
     }
 }

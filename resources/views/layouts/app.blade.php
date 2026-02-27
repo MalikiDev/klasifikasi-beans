@@ -13,7 +13,7 @@
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
                     <a href="{{ route('coffee.index') }}" class="text-xl font-bold text-gray-800">
-                        ☕ Sistem Informasi Biji Kopi
+                        Sistem Informasi Biji Kopi
                     </a>
                 </div>
                 <div class="flex space-x-4">

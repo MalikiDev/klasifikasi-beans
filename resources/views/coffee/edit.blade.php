@@ -3,14 +3,14 @@
 @section('content')
 <div class="container mx-auto px-4 py-8 max-w-2xl">
     <div class="mb-6">
-        <a href="{{ route('coffee.show', $coffeeBean) }}" class="text-blue-500 hover:text-blue-700">← Kembali</a>
+        <a href="{{ route('coffee.show', $coffee) }}" class="text-blue-500 hover:text-blue-700">← Kembali</a>
     </div>
 
     <div class="bg-white rounded-lg shadow-lg p-6">
         <h1 class="text-2xl font-bold text-gray-800 mb-2">Edit Data Biji Kopi</h1>
         <p class="text-gray-600 mb-6">Update informasi atau ganti gambar untuk klasifikasi ulang</p>
 
-        <form action="{{ route('coffee.update', $coffeeBean) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('coffee.update', $coffee) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -18,7 +18,7 @@
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
                     Nama Biji Kopi
                 </label>
-                <input type="text" name="name" id="name" value="{{ old('name', $coffeeBean->name) }}" 
+                <input type="text" name="name" id="name" value="{{ old('name', $coffee->name) }}" 
                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('name') border-red-500 @enderror" 
                     placeholder="Kosongkan untuk menggunakan nama otomatis">
                 @error('name')
@@ -31,7 +31,7 @@
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="variety">
                     Varietas
                 </label>
-                <input type="text" name="variety" id="variety" value="{{ old('variety', $coffeeBean->variety) }}" 
+                <input type="text" name="variety" id="variety" value="{{ old('variety', $coffee->variety) }}" 
                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
 
@@ -39,7 +39,7 @@
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="origin">
                     Asal/Origin
                 </label>
-                <input type="text" name="origin" id="origin" value="{{ old('origin', $coffeeBean->origin) }}" 
+                <input type="text" name="origin" id="origin" value="{{ old('origin', $coffee->origin) }}" 
                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
 
@@ -49,7 +49,7 @@
                 </label>
                 <textarea name="description" id="description" rows="4" 
                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                    placeholder="Kosongkan untuk menggunakan deskripsi otomatis">{{ old('description', $coffeeBean->description) }}</textarea>
+                    placeholder="Kosongkan untuk menggunakan deskripsi otomatis">{{ old('description', $coffee->description) }}</textarea>
                 <p class="text-xs text-gray-500 mt-1">Kosongkan untuk menggunakan deskripsi otomatis dari hasil klasifikasi</p>
             </div>
 
@@ -58,9 +58,9 @@
                     Gambar Biji Kopi
                 </label>
                 
-                @if($coffeeBean->image_path)
+                @if($coffee->image_path)
                     <div class="mb-3">
-                        <img src="{{ asset('storage/' . $coffeeBean->image_path) }}" alt="{{ $coffeeBean->name }}" class="max-w-full h-48 object-cover rounded">
+                        <img src="{{ asset('storage/' . $coffee->image_path) }}" alt="{{ $coffee->name }}" class="max-w-full h-48 object-cover rounded">
                         <p class="text-sm text-gray-600 mt-1">Gambar saat ini</p>
                     </div>
                 @endif
@@ -92,7 +92,7 @@
                 <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Update Data
                 </button>
-                <a href="{{ route('coffee.show', $coffeeBean) }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                <a href="{{ route('coffee.show', $coffee) }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Batal
                 </a>
             </div>

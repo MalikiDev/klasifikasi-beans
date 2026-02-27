@@ -1,0 +1,25 @@
+# Flask API Requirements untuk Klasifikasi Roasting Biji Kopi
+
+# Core Flask
+Flask==3.0.0
+flask-cors==4.0.0
+
+# Image Processing
+Pillow==10.1.0
+
+# Machine Learning (pilih salah satu sesuai kebutuhan)
+# TensorFlow
+tensorflow==2.17.0
+# atau PyTorch
+# torch==2.1.0
+# torchvision==0.16.0
+
+# Data Processing
+numpy==1.26.2
+
+# Optional: untuk production deployment
+gunicorn==21.2.0
+python-dotenv==1.0.0
+
+# Optional: untuk monitoring
+flask-limiter==3.5.0

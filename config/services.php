@@ -36,8 +36,10 @@ return [
     ],
 
     'flask' => [
-        'url' => env('FLASK_API_URL', 'http://localhost:5000'),
-        'timeout' => env('FLASK_API_TIMEOUT', 30),
+        'url'            => env('FLASK_URL', 'http://localhost:5000'),
+        'timeout'        => env('FLASK_TIMEOUT', 60),
+        'batch_timeout'  => env('FLASK_BATCH_TIMEOUT', 300),
+        'folder_timeout' => env('FLASK_FOLDER_TIMEOUT', 600),
     ],
 
 ];

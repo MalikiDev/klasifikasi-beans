@@ -9,6 +9,11 @@ export default {
         './resources/**/*.js',
         './resources/**/*.vue',
     ],
+    safelist: [
+    'bg-amber-100', 'text-amber-700',
+    'bg-orange-100', 'text-orange-700',
+    'bg-stone-200',  'text-stone-700',
+    ],
     theme: {
         extend: {
             fontFamily: {

@@ -1,116 +1,81 @@
 @extends('layouts.app')
 
+@section('title', 'Dashboard — CoffeeAI')
+
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800">Sistem Klasifikasi Roasting Biji Kopi</h1>
-            <p class="text-gray-600 mt-1">Klasifikasi otomatis: Green, Light, Medium, Dark</p>
-        </div>
-        <a href="{{ route('coffee.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
-            </svg>
-            Tambah Data Baru
-        </a>
-    </div>
 
-    @if(session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            {{ session('success') }}
-        </div>
-    @endif
-
-    <!-- Roasting Level Legend -->
-    <div class="bg-white rounded-lg shadow p-4 mb-6">
-        <h3 class="font-semibold text-gray-800 mb-3">Tingkat Roasting:</h3>
-        <div class="flex flex-wrap gap-3">
-            @foreach(\App\Helpers\RoastingHelper::getAllLevels() as $level)
-                <div class="flex items-center">
-                    <span class="text-2xl mr-2">{{ $level['icon'] }}</span>
-                    <span class="inline-block {{ $level['color'] }} px-3 py-1 rounded-full text-sm font-semibold">
-                        {{ $level['name'] }}
-                    </span>
+<!-- ─────────────────────── WRAPPER ─────────────────────── -->
+<div class="info-bg min-h-screen">
+    
+    <!-- ══════════ HERO / HEADER ══════════ -->
+    <div class="border-b border-gray-200 bg-white">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+            
+            <!-- Top Bar -->
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">Dashboard Pengguna</p>
+                    <h1 class="text-4xl sm:text-5xl font-semibold tracking-tighter text-gray-900 leading-[1.05]">
+                        History Klasifikasi
+                    </h1>
                 </div>
-            @endforeach
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @forelse($coffeeBeans as $bean)
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                @if($bean->image_path)
-                    <img src="{{ asset('storage/' . $bean->image_path) }}" alt="{{ $bean->name }}" class="w-full h-48 object-cover">
-                @else
-                    <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
-                        <span class="text-gray-400">No Image</span>
-                    </div>
-                @endif
-                
-                <div class="p-4">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ $bean->name }}</h3>
-                    
-                    @if($bean->final_classification)
-                        <div class="mb-2">
-                            <span class="inline-block {{ \App\Helpers\RoastingHelper::getBadgeColor($bean->final_classification) }} text-xs px-2 py-1 rounded font-semibold">
-                                {{ \App\Helpers\RoastingHelper::getIcon($bean->final_classification) }} {{ $bean->final_classification }}
-                            </span>
-                            @if($bean->models_agree !== null)
-                                <span class="inline-block {{ $bean->models_agree ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }} text-xs px-2 py-1 rounded">
-                                    {{ $bean->models_agree ? '✓ Setuju' : '⚠ Beda' }}
-                                </span>
-                            @endif
-                        </div>
-                        
-                        @if($bean->confidence_small && $bean->confidence_large)
-                            <div class="text-xs text-gray-600 space-y-1">
-                                <div class="flex justify-between">
-                                    <span>Small:</span>
-                                    <span class="font-semibold">{{ number_format($bean->confidence_small, 1) }}%</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span>Large:</span>
-                                    <span class="font-semibold">{{ number_format($bean->confidence_large, 1) }}%</span>
-                                </div>
-                            </div>
-                        @endif
-                    @endif
-
-                    @if($bean->variety)
-                        <p class="text-sm text-gray-600 mb-1"><strong>Varietas:</strong> {{ $bean->variety }}</p>
-                    @endif
-                    
-                    @if($bean->origin)
-                        <p class="text-sm text-gray-600 mb-3"><strong>Asal:</strong> {{ $bean->origin }}</p>
-                    @endif
-
-                    <div class="flex gap-2">
-                        <a href="{{ route('coffee.show', $bean) }}" class="flex-1 bg-blue-500 hover:bg-blue-700 text-white text-center py-2 px-3 rounded text-sm">
-                            Detail
-                        </a>
-                        <a href="{{ route('coffee.edit', $bean) }}" class="flex-1 bg-yellow-500 hover:bg-yellow-700 text-white text-center py-2 px-3 rounded text-sm">
-                            Edit
-                        </a>
-                    </div>
-                </div>
-            </div>
-        @empty
-            <div class="col-span-full text-center py-12">
-                <div class="text-6xl mb-4">☕</div>
-                <p class="text-gray-500 text-lg mb-2">Belum ada data biji kopi.</p>
-                <p class="text-gray-400 text-sm mb-4">Mulai dengan menambahkan data pertama Anda!</p>
-                <a href="{{ route('coffee.create') }}" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                    Tambah Data Pertama
+                <a href="{{ route('coffee.create') }}" 
+                   class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 transition-colors shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Klasifikasi Baru
                 </a>
             </div>
-        @endforelse
+
+            <!-- Stats & Legend Strip -->
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 pt-2">
+                <!-- Legend Levels -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mr-2">Kelas Roasting:</span>
+                    @foreach(\App\Helpers\RoastingHelper::getAllLevels() as $level)
+                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 bg-white shadow-sm">
+                            <span class="w-2 h-2 rounded-full {{ $level['color'] }} bg-current opacity-80"></span>
+                            <span class="text-xs font-semibold text-gray-600">{{ $level['name'] }}</span>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Mobile Add Button -->
+                <a href="{{ route('coffee.create') }}" 
+                   class="sm:hidden inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-gray-900 text-white text-sm font-bold">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Tambah Data Baru
+                </a>
+            </div>
+
+        </div>
     </div>
 
-    <div class="mt-6">
-        {{ $coffeeBeans->links() }}
+    <!-- ══════════ MAIN CONTENT ══════════ -->
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+        
+        <!-- Flash Message -->
+        @if(session('success'))
+            <div class="mb-8 flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 p-4 text-green-800 anim d1">
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold">Sukses!</p>
+                    <p class="text-xs text-green-700">{{ session('success') }}</p>
+                </div>
+            </div>
+        @endif
+
+        <!-- Livewire History Dashboard Component -->
+        @livewire('history-dashboard')
+
     </div>
 </div>
+
 @endsection

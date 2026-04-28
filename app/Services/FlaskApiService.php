@@ -122,8 +122,8 @@ class FlaskApiService
     }
 
     /**
-     * Classify folder ZIP — gunakan timeout yang lebih besar
-     * karena Flask perlu extract ZIP + proses semua gambar
+     * Classify folder ZIP 
+     * /
      */
     public function classifyFolder($zipPath)
     {
@@ -133,7 +133,7 @@ class FlaskApiService
 
             Log::info("Sending ZIP to Flask: {$fileName} (" . round($fileSize/1024/1024, 2) . " MB)");
 
-            $response = Http::timeout($this->folderTimeout)  // ✅ pakai folderTimeout (10 menit)
+            $response = Http::timeout($this->folderTimeout) 
                 ->attach('folder', file_get_contents($zipPath), $fileName)
                 ->post("{$this->baseUrl}/api/classify-folder", [
                     'model_type' => 'both',

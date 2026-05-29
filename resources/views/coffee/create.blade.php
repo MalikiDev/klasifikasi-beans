@@ -67,6 +67,34 @@
     .batch-file-list { max-height:180px;overflow-y:auto; }
     .batch-file-list::-webkit-scrollbar { width:4px; }
     .batch-file-list::-webkit-scrollbar-thumb { background:var(--paper-3);border-radius:4px; }
+
+    /* toggle switch */
+    .toggle-switch { position:relative;display:inline-block;width:44px;height:24px; }
+    .toggle-switch input { opacity:0;width:0;height:0; }
+    .toggle-slider {
+        position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;
+        background:var(--paper-3);transition:.3s;border-radius:24px;
+    }
+    .toggle-slider:before {
+        position:absolute;content:"";height:20px;width:20px;left:2px;bottom:2px;
+        background:white;transition:.3s;border-radius:50%;
+    }
+    input:checked + .toggle-slider { background:var(--accent); }
+    input:checked + .toggle-slider:before { transform:translateX(20px); }
+
+    /* radio button for batch size */
+    .batch-size-option { transition:all .2s; }
+    .batch-size-option:hover { transform:translateY(-2px); }
+    .batch-size-option input:checked + div {
+        border-color: var(--accent) !important;
+        border-width: 2px;
+        background: rgba(200, 169, 110, 0.05);
+    }
+    .batch-size-option input:checked + div > div:first-child {
+        color: var(--accent) !important;
+    }
+
+
 </style>
 
 <div class="min-h-screen" style="background:var(--paper)">
@@ -319,6 +347,41 @@
                         </div>
                         @error('image') <p class="text-[11px] mt-2" style="color:var(--danger)">{{ $message }}</p> @enderror
 
+                        {{-- Model Configuration --}}
+                        <div class="mt-5 p-4 rounded-xl border" style="background:var(--paper);border-color:var(--paper-3)">
+                            <p class="text-[10.5px] font-medium mb-3 font-mono-custom tracking-[.08em]" style="color:var(--ink-3)">KONFIGURASI MODEL</p>
+                            
+                            <div class="space-y-3">
+                                {{-- Batch Size --}}
+                                <div>
+                                    <label class="block text-[11.5px] font-medium mb-2" style="color:var(--ink)">Batch Size</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        @foreach([16 => 'Akurasi Tinggi', 32 => 'Seimbang (Default)', 64 => 'Eksperimental'] as $size => $label)
+                                        <label class="relative cursor-pointer">
+                                            <input type="radio" name="batch_size" value="{{ $size }}" {{ $size === 32 ? 'checked' : '' }} class="peer sr-only">
+                                            <div class="px-3 py-2.5 rounded-lg border text-center transition-all duration-200 peer-checked:border-accent peer-checked:bg-accent/5" style="border-color:var(--paper-3)">
+                                                <div class="text-[13px] font-semibold mb-0.5" style="color:var(--ink)">{{ $size }}</div>
+                                                <div class="text-[9px] font-light" style="color:var(--ink-3)">{{ $label }}</div>
+                                            </div>
+                                        </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                {{-- TTA Toggle --}}
+                                <div class="flex items-center justify-between pt-2">
+                                    <div>
+                                        <label class="text-[11.5px] font-medium block mb-0.5" style="color:var(--ink)">Test Time Augmentation (TTA)</label>
+                                        <p class="text-[10px] font-light" style="color:var(--ink-3)">Meningkatkan akurasi dengan augmentasi data</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="ttaToggleSingle" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-2 gap-2 mt-5">
                             @foreach(['Pencahayaan yang cukup','Fokus pada biji kopi','Hindari bayangan berlebih','Ambil dari jarak dekat'] as $tip)
                             <div class="flex items-center gap-2 px-3 py-2 rounded-lg border text-[11.5px] font-light" style="background:var(--paper);border-color:var(--paper-2);color:var(--ink-3)">
@@ -362,6 +425,42 @@
                                 <div id="batchFileList" class="batch-file-list mx-4 mb-4 rounded-[10px] border" style="border-color:var(--paper-3)"></div>
                             </div>
                         </div>
+
+                        {{-- Model Configuration --}}
+                        <div class="mt-5 p-4 rounded-xl border" style="background:var(--paper);border-color:var(--paper-3)">
+                            <p class="text-[10.5px] font-medium mb-3 font-mono-custom tracking-[.08em]" style="color:var(--ink-3)">KONFIGURASI MODEL</p>
+                            
+                            <div class="space-y-3">
+                                {{-- Batch Size --}}
+                                <div>
+                                    <label class="block text-[11.5px] font-medium mb-2" style="color:var(--ink)">Batch Size</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        @foreach([16 => 'Akurasi Tinggi', 32 => 'Seimbang (Default)', 64 => 'Eksperimental'] as $size => $label)
+                                        <label class="relative cursor-pointer">
+                                            <input type="radio" name="batch_size" value="{{ $size }}" {{ $size === 32 ? 'checked' : '' }} class="peer sr-only">
+                                            <div class="px-3 py-2.5 rounded-lg border text-center transition-all duration-200 peer-checked:border-accent peer-checked:bg-accent/5" style="border-color:var(--paper-3)">
+                                                <div class="text-[13px] font-semibold mb-0.5" style="color:var(--ink)">{{ $size }}</div>
+                                                <div class="text-[9px] font-light" style="color:var(--ink-3)">{{ $label }}</div>
+                                            </div>
+                                        </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                {{-- TTA Toggle --}}
+                                <div class="flex items-center justify-between pt-2">
+                                    <div>
+                                        <label class="text-[11.5px] font-medium block mb-0.5" style="color:var(--ink)">Test Time Augmentation (TTA)</label>
+                                        <p class="text-[10px] font-light" style="color:var(--ink-3)">Meningkatkan akurasi dengan augmentasi data</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="ttaToggleBatch" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="grid grid-cols-2 gap-2 mt-5">
                             @foreach(['Pilih semua gambar sekaligus','Format JPG/PNG/JPEG','Setiap gambar diproses terpisah','Hasil disimpan per gambar'] as $tip)
                             <div class="flex items-center gap-2 px-3 py-2 rounded-lg border text-[11.5px] font-light" style="background:var(--paper);border-color:var(--paper-2);color:var(--ink-3)">
@@ -425,6 +524,41 @@
 ├── Green/
 ├── Light/
 └── Medium/</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Model Configuration --}}
+                        <div class="mt-5 p-4 rounded-xl border" style="background:var(--paper);border-color:var(--paper-3)">
+                            <p class="text-[10.5px] font-medium mb-3 font-mono-custom tracking-[.08em]" style="color:var(--ink-3)">KONFIGURASI MODEL</p>
+                            
+                            <div class="space-y-3">
+                                {{-- Batch Size --}}
+                                <div>
+                                    <label class="block text-[11.5px] font-medium mb-2" style="color:var(--ink)">Batch Size</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        @foreach([16 => 'Akurasi Tinggi', 32 => 'Seimbang (Default)', 64 => 'Eksperimental'] as $size => $label)
+                                        <label class="relative cursor-pointer">
+                                            <input type="radio" name="batch_size" value="{{ $size }}" {{ $size === 32 ? 'checked' : '' }} class="peer sr-only">
+                                            <div class="px-3 py-2.5 rounded-lg border text-center transition-all duration-200 peer-checked:border-accent peer-checked:bg-accent/5" style="border-color:var(--paper-3)">
+                                                <div class="text-[13px] font-semibold mb-0.5" style="color:var(--ink)">{{ $size }}</div>
+                                                <div class="text-[9px] font-light" style="color:var(--ink-3)">{{ $label }}</div>
+                                            </div>
+                                        </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                {{-- TTA Toggle --}}
+                                <div class="flex items-center justify-between pt-2">
+                                    <div>
+                                        <label class="text-[11.5px] font-medium block mb-0.5" style="color:var(--ink)">Test Time Augmentation (TTA)</label>
+                                        <p class="text-[10px] font-light" style="color:var(--ink-3)">Meningkatkan akurasi dengan augmentasi data</p>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="ttaToggleFolder" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -624,6 +758,38 @@ function formatBytes(b) {
     });
 });
 
+// ══════════════════════════════════════════════════════════
+// TTA TOGGLE - Handle checkbox to hidden input
+// ══════════════════════════════════════════════════════════
+document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    // Only handle TTA checkboxes (those without a name attribute or with specific pattern)
+    if (checkbox.closest('.toggle-switch')) {
+        const form = checkbox.closest('form');
+        if (!form) return;
+        
+        // Find or create hidden input for use_tta
+        let hiddenInput = form.querySelector('input[type="hidden"][name="use_tta"]');
+        if (!hiddenInput) {
+            hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'use_tta';
+            form.insertBefore(hiddenInput, form.firstChild);
+        }
+        
+        // Function to update hidden input
+        function updateTtaValue() {
+            hiddenInput.value = checkbox.checked ? '1' : '0';
+            console.log('TTA Toggle:', checkbox.id, 'Checked:', checkbox.checked, 'Value:', hiddenInput.value);
+        }
+        
+        // Initialize
+        updateTtaValue();
+        
+        // Listen for changes
+        checkbox.addEventListener('change', updateTtaValue);
+    }
+});
+
 [['formSingle','submitSingle'],['formBatch','submitBatch'],['formFolder','submitFolder']].forEach(([fId,bId]) => {
     const form = document.getElementById(fId);
     if (!form) return;
@@ -633,6 +799,74 @@ function formatBytes(b) {
         btn.innerHTML = `<svg class="animate-spin-slow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity=".25"/><path d="M12 2a10 10 0 0110 10"/></svg> Menganalisis...`;
     });
 });
+
+// ══════════════════════════════════════════════════════════
+// BATCH SIZE SELECTOR - Interactive Radio Buttons
+// ══════════════════════════════════════════════════════════
+document.querySelectorAll('label[class*="cursor-pointer"]').forEach(label => {
+    const radio = label.querySelector('input[type="radio"][name="batch_size"]');
+    if (!radio) return;
+    
+    const inner = label.querySelector('div[class*="rounded-lg"]');
+    const number = inner?.querySelector('div:first-child');
+    
+    // Function to update visual state
+    function updateBatchSizeVisual() {
+        // Reset all in the same group
+        const form = radio.closest('form');
+        if (!form) return;
+        
+        form.querySelectorAll('input[type="radio"][name="batch_size"]').forEach(r => {
+            const lbl = r.closest('label');
+            const innerDiv = lbl?.querySelector('div[class*="rounded-lg"]');
+            const num = innerDiv?.querySelector('div:first-child');
+            
+            if (r.checked) {
+                if (innerDiv) {
+                    innerDiv.style.borderColor = 'var(--accent)';
+                    innerDiv.style.borderWidth = '2px';
+                    innerDiv.style.background = 'rgba(200, 169, 110, 0.05)';
+                }
+                if (num) num.style.color = 'var(--accent)';
+            } else {
+                if (innerDiv) {
+                    innerDiv.style.borderColor = 'var(--paper-3)';
+                    innerDiv.style.borderWidth = '1px';
+                    innerDiv.style.background = '';
+                }
+                if (num) num.style.color = 'var(--ink)';
+            }
+        });
+    }
+    
+    // Click handler
+    label.addEventListener('click', (e) => {
+        e.preventDefault();
+        radio.checked = true;
+        updateBatchSizeVisual();
+    });
+    
+    // Hover effect
+    label.addEventListener('mouseenter', () => {
+        if (inner && !radio.checked) {
+            inner.style.transform = 'translateY(-2px)';
+            inner.style.boxShadow = '0 4px 12px rgba(0,0,0,.08)';
+        }
+    });
+    
+    label.addEventListener('mouseleave', () => {
+        if (inner) {
+            inner.style.transform = '';
+            inner.style.boxShadow = '';
+        }
+    });
+    
+    // Initialize on page load
+    if (radio.checked) {
+        updateBatchSizeVisual();
+    }
+});
+
 </script>
 
 @endsection

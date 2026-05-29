@@ -29,7 +29,10 @@ class CoffeeBeans extends Model
         'batch_sequence',
         'batch_total',
         'upload_mode',
-        'source_filename'
+        'source_filename',
+        // Model configuration
+        'batch_size',
+        'use_tta',
     ];
 
     protected $casts = [
@@ -39,7 +42,8 @@ class CoffeeBeans extends Model
         'confidence_small' => 'decimal:2',
         'confidence_large' => 'decimal:2',
         'confidence_difference' => 'decimal:2',
-        'models_agree' => 'boolean'
+        'models_agree' => 'boolean',
+        'use_tta' => 'boolean',
     ];
     
     /**

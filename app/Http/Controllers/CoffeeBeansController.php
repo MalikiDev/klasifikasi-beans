@@ -45,13 +45,18 @@ class CoffeeBeansController extends Controller
     protected function storeSingle(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048'
+            'image'      => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'batch_size' => 'nullable|integer|in:16,32,64',
+            'use_tta'    => 'nullable|boolean',
         ]);
 
         $imagePath = $request->file('image')->store('coffee-beans', 'public');
         $fullPath  = storage_path('app/public/' . $imagePath);
 
-        $classification = $this->flaskApi->classifyImage($fullPath);
+        $batchSize = $request->input('batch_size', 32);
+        $useTta    = $this->parseTtaInput($request->input('use_tta'));
+
+        $classification = $this->flaskApi->classifyImage($fullPath, $batchSize, $useTta);
 
         if (!$classification['success']) {
             Storage::disk('public')->delete($imagePath);
@@ -69,6 +74,8 @@ class CoffeeBeansController extends Controller
             'description'           => \App\Helpers\RoastingHelper::getDescription($finalClass),
             'image_path'            => $imagePath,
             'upload_mode'           => 'single',
+            'batch_size'            => $batchSize,
+            'use_tta'               => $useTta,
             'classification_small'  => $data['small']['class'],
             'confidence_small'      => $data['small']['confidence'],
             'predictions_small'     => $data['small']['predictions'],
@@ -93,11 +100,14 @@ class CoffeeBeansController extends Controller
 
     protected function storeBatch(Request $request)
     {
-        set_time_limit(300);
+        set_time_limit(600); // Increase to 10 minutes
+        ini_set('max_execution_time', 600);
 
         $request->validate([
-            'image'   => 'required',
-            'image.*' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'image'      => 'required',
+            'image.*'    => 'image|mimes:jpeg,png,jpg|max:2048',
+            'batch_size' => 'nullable|integer|in:16,32,64',
+            'use_tta'    => 'nullable|boolean',
         ]);
 
         $images = $request->file('image');
@@ -121,7 +131,10 @@ class CoffeeBeansController extends Controller
             $tempFiles[]  = $tempPath;
         }
 
-        $batchResult = $this->flaskApi->classifyBatch($imagePaths, null);
+        $batchSize = $request->input('batch_size', 32);
+        $useTta    = $this->parseTtaInput($request->input('use_tta'));
+
+        $batchResult = $this->flaskApi->classifyBatch($imagePaths, null, $batchSize, $useTta);
         foreach ($tempFiles as $tf) Storage::disk('public')->delete($tf);
 
         if (!$batchResult['success']) {
@@ -145,6 +158,8 @@ class CoffeeBeansController extends Controller
                     'batch_id'              => $batchId,
                     'batch_sequence'        => $index + 1,
                     'batch_total'           => $totalImages,
+                    'batch_size'            => $batchSize,
+                    'use_tta'               => $useTta,
                     'classification_small'  => $result['small']['class'],
                     'confidence_small'      => $result['small']['confidence'],
                     'predictions_small'     => $result['small']['predictions'],
@@ -176,10 +191,13 @@ class CoffeeBeansController extends Controller
 
     protected function storeFolder(Request $request)
     {
-        set_time_limit(600);
+        set_time_limit(900); // Increase to 15 minutes for large ZIP files
+        ini_set('max_execution_time', 900);
 
         $request->validate([
-            'folder' => 'required|file|max:102400',
+            'folder'     => 'required|file|max:102400',
+            'batch_size' => 'nullable|integer|in:16,32,64',
+            'use_tta'    => 'nullable|boolean',
         ]);
 
         // 1. Simpan ZIP sementara
@@ -190,7 +208,10 @@ class CoffeeBeansController extends Controller
         Log::info("[storeFolder] ZIP saved: {$fullZipPath}");
 
         // 2. Kirim ke Flask
-        $folderResult = $this->flaskApi->classifyFolder($fullZipPath);
+        $batchSize = $request->input('batch_size', 32);
+        $useTta    = $this->parseTtaInput($request->input('use_tta'));
+
+        $folderResult = $this->flaskApi->classifyFolder($fullZipPath, $batchSize, $useTta);
         Storage::disk('public')->delete($zipPath); // hapus ZIP temp
 
         if (!$folderResult['success']) {
@@ -213,6 +234,8 @@ class CoffeeBeansController extends Controller
         // 3. Simpan semua hasil ke database
         $batchId      = 'FOLDER-' . now()->format('YmdHis') . '-' . uniqid();
         $successCount = 0;
+        $batchSize    = $request->input('batch_size', 32);
+        $useTta       = $this->parseTtaInput($request->input('use_tta'));
 
         foreach ($apiResults as $index => $result) {
             try {
@@ -234,6 +257,8 @@ class CoffeeBeansController extends Controller
                     'batch_sequence'        => $index + 1,
                     'batch_total'           => $total,
                     'source_filename'       => $result['filename'] ?? null,
+                    'batch_size'            => $batchSize,
+                    'use_tta'               => $useTta,
                     'classification_small'  => $result['small']['class'],
                     'confidence_small'      => $result['small']['confidence'],
                     'predictions_small'     => $result['small']['predictions'] ?? null,
@@ -366,7 +391,9 @@ class CoffeeBeansController extends Controller
 
             $imagePath      = $request->file('image')->store('coffee-beans', 'public');
             $fullPath       = storage_path('app/public/' . $imagePath);
-            $classification = $this->flaskApi->classifyImage($fullPath);
+            $batchSize      = $request->input('batch_size', 32);
+            $useTta         = $this->parseTtaInput($request->input('use_tta'));
+            $classification = $this->flaskApi->classifyImage($fullPath, $batchSize, $useTta);
 
             if ($classification['success']) {
                 $apiData    = $classification['data'];
@@ -399,15 +426,18 @@ class CoffeeBeansController extends Controller
         return redirect()->route('coffee.index')->with('success', 'Data berhasil dihapus!');
     }
 
-    public function reclassify(CoffeeBeans $coffee)
+    public function reclassify(Request $request, CoffeeBeans $coffee)
     {
         if (!$coffee->image_path) {
             return redirect()->route('coffee.show', $coffee)
                 ->with('error', 'Tidak ada gambar untuk diklasifikasi!');
         }
 
+        $batchSize = $request->input('batch_size', 32);
+        $useTta    = $this->parseTtaInput($request->input('use_tta'));
+
         $fullPath       = storage_path('app/public/' . $coffee->image_path);
-        $classification = $this->flaskApi->classifyImage($fullPath);
+        $classification = $this->flaskApi->classifyImage($fullPath, $batchSize, $useTta);
 
         if (!$classification['success']) {
             return redirect()->route('coffee.show', $coffee)
@@ -460,6 +490,17 @@ class CoffeeBeansController extends Controller
     // ══════════════════════════════════════════════
     // PRIVATE HELPERS
     // ══════════════════════════════════════════════
+
+    /**
+     * Convert use_tta input to boolean
+     * Handles: '1', '0', 1, 0, true, false, null
+     */
+    private function parseTtaInput($value): bool
+    {
+        if ($value === null) return true; // Default to true
+        if (is_bool($value)) return $value;
+        return in_array($value, ['1', 1, true, 'true'], true);
+    }
 
     protected function resolveFinalClass(array $small, array $large): string
     {

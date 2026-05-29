@@ -23,19 +23,19 @@ $fmtTime = fn($ms) => $ms >= 1000 ? round($ms / 1000) . 's' : round($ms) . 'ms';
     {{-- ══ STICKY TOP BAR ══ --}}
     <div class="sticky top-0 z-20 bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-            <a href="{{ route('coffee.index') }}"
+            <a href="{{ route('coffee.create') }}"
                class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-gray-900 transition-colors">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
                 </svg>
-                Kembali ke History
+                Kembali ke Halaman Klasifikasi
             </a>
             <div class="flex items-center gap-3">
-                <a href="{{ route('coffee.edit', $coffee) }}"
+                <!-- <a href="{{ route('coffee.edit', $coffee) }}"
                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     Edit
-                </a>
+                </a> -->
                 <form action="{{ route('coffee.destroy', $coffee) }}" method="POST"
                       onsubmit="return confirm('Yakin ingin menghapus data ini?')">
                     @csrf @method('DELETE')
@@ -134,6 +134,63 @@ $fmtTime = fn($ms) => $ms >= 1000 ? round($ms / 1000) . 's' : round($ms) . 'ms';
                         @endif
                     </div>
                     @endif
+                </div>
+
+                {{-- Model Configuration Info --}}
+                <div class="bg-white rounded-2xl border border-gray-200 p-5">
+                    <p class="text-xs text-gray-400 uppercase tracking-wider font-semibold mb-4">Konfigurasi Model</p>
+                    <div class="space-y-3">
+                        {{-- Batch Size --}}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="7" width="20" height="14" rx="2"/>
+                                    <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+                                </svg>
+                                <span class="text-sm text-gray-600">Batch Size</span>
+                            </div>
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold" style="background:rgba(200,169,110,0.1);color:#9d7c42">
+                                {{ $coffee->batch_size ?? 32 }}
+                            </span>
+                        </div>
+
+                        {{-- TTA Status --}}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
+                                </svg>
+                                <span class="text-sm text-gray-600">TTA (Test Time Aug.)</span>
+                            </div>
+                            @if($coffee->use_tta ?? true)
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                                    ✓ Aktif
+                                </span>
+                            @else
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
+                                    Nonaktif
+                                </span>
+                            @endif
+                        </div>
+
+                        {{-- Upload Mode --}}
+                        @if($coffee->upload_mode)
+                        <div class="flex items-center justify-between pt-2 border-t border-gray-100">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4m14-7l-5-5-5 5m5-5v12"/>
+                                </svg>
+                                <span class="text-sm text-gray-600">Upload Mode</span>
+                            </div>
+                            @php
+                                $modeBadge = $coffee->getUploadModeBadge();
+                            @endphp
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $modeBadge['color'] }}">
+                                {{ $modeBadge['text'] }}
+                            </span>
+                        </div>
+                        @endif
+                    </div>
                 </div>
 
                 {{-- Reclassify --}}

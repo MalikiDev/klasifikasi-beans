@@ -83,6 +83,34 @@
             </div>
         </div>
 
+        <!-- Model Configuration Info -->
+        <div class="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6 mb-10">
+            <div class="flex items-center gap-2 mb-4">
+                <svg class="w-5 h-5 text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+                </svg>
+                <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider">Konfigurasi Model</h3>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <p class="text-xs text-gray-500 mb-1">Batch Size</p>
+                    <p class="text-2xl font-bold" style="color:#9d7c42">{{ $batchItems->first()->batch_size ?? 32 }}</p>
+                </div>
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <p class="text-xs text-gray-500 mb-1">TTA Status</p>
+                    @if($batchItems->first()->use_tta ?? true)
+                        <p class="text-lg font-bold text-green-600">✓ Aktif</p>
+                    @else
+                        <p class="text-lg font-bold text-gray-500">Nonaktif</p>
+                    @endif
+                </div>
+                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                    <p class="text-xs text-gray-500 mb-1">Upload Mode</p>
+                    <p class="text-lg font-bold text-blue-600">Batch</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Classification Distribution -->
         <div class="bg-white border border-gray-200 rounded-xl p-8 mb-10">
             <h3 class="text-lg font-semibold text-gray-900 mb-6">Distribusi Klasifikasi</h3>

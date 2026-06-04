@@ -537,7 +537,7 @@
                 <div class="relative z-10 aspect-[4/5] sm:aspect-square lg:aspect-[4/5] w-full
                             rounded-2xl overflow-hidden shadow-2xl shadow-gray-200/50
                             border border-white/80 bg-gray-100">
-                    <img src="{{ asset('img/profile.jpeg') }}"
+                    <img src="{{ asset('img/profile.webp') }}"
                          alt="Foto Profil"
                          class="h-full w-full object-cover object-center grayscale hover:grayscale-0 transition-all duration-700"
                          onerror="this.style.display='none'; this.parentElement.classList.add('profile-placeholder')">

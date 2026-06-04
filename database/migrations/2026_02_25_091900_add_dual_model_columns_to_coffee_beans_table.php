@@ -18,22 +18,28 @@ return new class extends Migration
             }
             
             // MobileNetV3 Small Results
-            $table->string('classification_small')->nullable()->after('image_path');
-            $table->decimal('confidence_small', 5, 2)->nullable()->after('classification_small');
-            $table->json('predictions_small')->nullable()->after('confidence_small');
-            $table->integer('processing_time_small')->nullable()->after('predictions_small');
+            if (!Schema::hasColumn('coffee_beans', 'classification_small')) {
+                $table->string('classification_small')->nullable()->after('image_path');
+                $table->decimal('confidence_small', 5, 2)->nullable()->after('classification_small');
+                $table->json('predictions_small')->nullable()->after('confidence_small');
+                $table->integer('processing_time_small')->nullable()->after('predictions_small');
+            }
             
             // MobileNetV3 Large Results
-            $table->string('classification_large')->nullable()->after('processing_time_small');
-            $table->decimal('confidence_large', 5, 2)->nullable()->after('classification_large');
-            $table->json('predictions_large')->nullable()->after('confidence_large');
-            $table->integer('processing_time_large')->nullable()->after('predictions_large');
+            if (!Schema::hasColumn('coffee_beans', 'classification_large')) {
+                $table->string('classification_large')->nullable()->after('processing_time_small');
+                $table->decimal('confidence_large', 5, 2)->nullable()->after('classification_large');
+                $table->json('predictions_large')->nullable()->after('confidence_large');
+                $table->integer('processing_time_large')->nullable()->after('predictions_large');
+            }
             
             // Comparison & Analysis
-            $table->boolean('models_agree')->nullable()->after('processing_time_large');
-            $table->string('final_classification')->nullable()->after('models_agree');
-            $table->decimal('confidence_difference', 5, 2)->nullable()->after('final_classification');
-            $table->json('comparison_analysis')->nullable()->after('confidence_difference');
+            if (!Schema::hasColumn('coffee_beans', 'models_agree')) {
+                $table->boolean('models_agree')->nullable()->after('processing_time_large');
+                $table->string('final_classification')->nullable()->after('models_agree');
+                $table->decimal('confidence_difference', 5, 2)->nullable()->after('final_classification');
+                $table->json('comparison_analysis')->nullable()->after('confidence_difference');
+            }
         });
     }
 
